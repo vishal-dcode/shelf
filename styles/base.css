@@ -1,0 +1,1765 @@
+/* Shared components for every Shelf page. Colours come only from theme.css. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-ui);
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-size: var(--text-body);
+  line-height: var(--text-body-lh);
+  font-weight: var(--weight-normal);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Components below set `display`, which would otherwise beat [hidden]. */
+.banner[hidden],
+.field[hidden],
+.check[hidden],
+.btn[hidden],
+.cards[hidden] {
+  display: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.favicon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.favicon.is-loading {
+  opacity: 0;
+}
+
+/* No focus rings. Keyboard focus looks like hover: controls with an edge
+   firm up their border, the rest get the hover tint. Text fields firm up
+   their border while you type. */
+:focus,
+:focus-visible {
+  outline: none;
+}
+
+:is(button, a, summary, select, [tabindex]):focus-visible {
+  background-color: var(--surface-hover);
+}
+
+.btn:focus-visible {
+  border-color: var(--border-focus);
+}
+
+.btn-primary:focus-visible,
+.btn-danger:focus-visible {
+  filter: brightness(1.08);
+}
+
+header .meta {
+  border-radius: 100rem;
+  background-color: var(--surface-hover);
+  padding: 5px 10px;
+}
+
+.meta {
+  font-size: var(--text-caption);
+  line-height: var(--text-caption-lh);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------- buttons */
+
+.icon-btn,
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color var(--duration-fast) ease-out,
+    border-color var(--duration-fast) ease-out,
+    color var(--duration-fast) ease-out,
+    scale var(--duration-base) var(--ease-spring);
+}
+
+.icon-btn {
+  position: relative;
+  width: var(--control-size);
+  height: var(--control-size);
+  flex: none;
+  color: var(--text-secondary);
+}
+
+.icon-btn:hover,
+.icon-btn[aria-expanded="true"] {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+/* Press: a quick squash in, then a springy release (the resting transition
+   above). Icon-only buttons are small, so they squash more. */
+.icon-btn:active,
+.btn:active {
+  scale: 0.97;
+  background: var(--surface-press);
+  transition-duration: var(--duration-instant);
+  transition-timing-function: var(--ease-out);
+}
+
+.icon-btn:active {
+  scale: 0.92;
+}
+
+/* Small controls get at least a 32px target without changing how they look
+   or take up space: an invisible extension around them. */
+.switch-btn,
+.kbd-btn,
+.share-pill,
+.win-save {
+  position: relative;
+}
+
+.icon-btn::after,
+.switch-btn::after,
+.kbd-btn::after,
+.share-pill::after,
+.win-save::after {
+  content: "";
+  position: absolute;
+  inset-block: min(0px, calc((100% - 32px) / 2));
+  inset-inline: min(0px, calc((100% - 32px) / 2));
+}
+
+.btn {
+  min-height: var(--button-height);
+  padding: 0 var(--space-3);
+  font-size: var(--text-label);
+  line-height: var(--text-label-lh);
+  font-weight: var(--weight-medium);
+}
+
+.btn-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.btn-primary:active {
+  background: var(--accent);
+  filter: brightness(0.95);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: var(--text-on-danger);
+}
+
+.btn-danger:hover {
+  filter: brightness(1.08);
+}
+
+.btn-danger:active {
+  background: var(--danger);
+}
+
+.btn-secondary {
+  border-color: var(--border-subtle);
+  background: var(--surface-raised);
+}
+
+.btn-secondary:hover,
+.btn-secondary[aria-expanded="true"] {
+  border-color: var(--border-overlay);
+  background: var(--surface-sunken);
+}
+
+.btn-ghost:hover {
+  background: var(--surface-hover);
+}
+
+.btn-ghost {
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+  color: var(--text-primary);
+}
+
+.icon-btn:disabled,
+.btn:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+  scale: none;
+}
+
+/* Toggle buttons that stay on (star, theme). */
+.icon-btn[aria-pressed="true"] {
+  color: var(--star);
+}
+
+.icon-btn[aria-pressed="true"] .icon {
+  fill: currentColor;
+}
+
+/* Disclosure toggles: the button sits inside the heading. */
+.heading-wrap {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
+.toggle {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--control-size);
+  padding: 0 var(--space-1);
+  margin-left: calc(var(--space-1) * -1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) ease-out;
+}
+
+.toggle:hover {
+  background: var(--surface-hover);
+}
+
+.toggle .icon {
+  color: var(--text-secondary);
+  transition: transform var(--duration-base) var(--ease-spring);
+}
+
+.toggle[aria-expanded="true"] .chev {
+  transform: rotate(90deg);
+}
+
+.toggle-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------- rows */
+
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--row-height);
+  padding-left: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition:
+    background-color var(--duration-fast) ease-out,
+    opacity var(--duration-base) var(--ease-out),
+    scale var(--duration-base) var(--ease-spring),
+    rotate var(--duration-base) var(--ease-spring),
+    box-shadow var(--duration-base) var(--ease-out);
+}
+
+.row:hover {
+  background: var(--surface-hover);
+}
+
+/* Rows and cards give a little under the pointer, unless the press is on
+   one of their own icon buttons. */
+.row:not(:has(.icon-btn:active)):active {
+  scale: 0.985;
+  transition-duration: var(--duration-instant);
+  transition-timing-function: var(--ease-out);
+}
+
+.row[draggable="true"] {
+  cursor: grab;
+}
+
+.is-dragging {
+  opacity: 0.4;
+  scale: 0.98;
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    scale var(--duration-base) var(--ease-out);
+}
+
+/* Picked up: for the moment the browser takes its picture of the dragged
+   item it is shown full and slightly raised, then it eases back to the
+   faded placeholder (lib/motion.js removes the class a frame later). */
+.is-dragging.is-lifting {
+  /* Important: the item is still :active (pressed) at this moment. */
+  opacity: 1 !important;
+  scale: 1.02 !important;
+  transition: none;
+  box-shadow: var(--shadow-lift);
+  transition: none !important;
+}
+
+.row-main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--row-height);
+  padding: 0 var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-main:hover .row-title {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.row.is-active .row-title {
+  font-weight: var(--weight-medium);
+}
+
+/* Row actions stay focusable; they fade in on hover or focus to keep lists
+   quiet, and are always visible on touch-only devices. */
+.row-actions {
+  display: flex;
+  flex: none;
+  gap: var(--space-0);
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease-out;
+}
+
+.row:hover .row-actions,
+.row:focus-within .row-actions,
+.row-actions:has([aria-expanded="true"]) {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .row-actions {
+    opacity: 1;
+  }
+}
+
+.row-note {
+  flex: none;
+  padding-right: var(--space-2);
+}
+
+/* Drop position indicator for vertical lists. It grows in from the
+   middle each time it moves to a new gap. */
+.row.drop-before::before,
+.rows.drop-end::after {
+  content: "";
+  display: block;
+  height: 2px;
+  background: var(--link);
+  border-radius: 1px;
+  animation: drop-bar-in var(--duration-base) var(--ease-out);
+}
+
+@keyframes drop-bar-in {
+  from {
+    opacity: 0;
+    scale: 0.4 1;
+  }
+}
+
+@keyframes drop-bar-in-y {
+  from {
+    opacity: 0;
+    scale: 1 0.4;
+  }
+}
+
+.row.drop-before::before {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
+}
+
+/* ------------------------------------------------------------------ states */
+
+.empty-state {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  padding: var(--space-5) var(--space-1);
+  color: var(--text-secondary);
+  max-width: 44ch;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-3) var(--space-3) 0;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+  border: var(--border-w) solid var(--danger);
+  /* Concentric with the Dismiss button inside it. */
+  border-radius: calc(var(--radius-sm) + var(--space-2) + var(--border-w));
+  background: var(--surface-raised);
+}
+
+.banner p {
+  flex: 1;
+  color: var(--text-primary);
+}
+
+/* -------------------------------------------------------------------- menu */
+
+.btn-pill {
+  border-radius: var(--radius-pill);
+}
+
+.menu {
+  position: fixed;
+  z-index: var(--z-menu);
+  min-width: 11rem;
+  max-width: calc(100vw - var(--space-4));
+  max-height: 60vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  /* No shadow: a firmer hairline separates the menu from what is under it. */
+  border: var(--border-w) solid var(--border-overlay);
+  /* Concentric: item radius + menu padding + border. */
+  border-radius: calc(var(--radius-sm) + var(--space-1) + var(--border-w));
+  background: var(--surface-raised);
+  /* Grows from the corner nearest its button (ui.js sets the origin). */
+  animation: menu-in var(--duration-fast) var(--ease-out);
+  transform-origin: top right;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+/* Items follow in quick succession, 15ms apart, at most six steps. */
+.menu > li {
+  animation: menu-item-in var(--duration-fast) var(--ease-out) backwards;
+}
+
+.menu > li:nth-child(2) {
+  animation-delay: 15ms;
+}
+.menu > li:nth-child(3) {
+  animation-delay: 30ms;
+}
+.menu > li:nth-child(4) {
+  animation-delay: 45ms;
+}
+.menu > li:nth-child(5) {
+  animation-delay: 60ms;
+}
+.menu > li:nth-child(n + 6) {
+  animation-delay: 75ms;
+}
+
+@keyframes menu-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+}
+
+.menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--row-height);
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-instant) ease-out,
+    scale var(--duration-base) var(--ease-spring);
+}
+
+.menu-item:hover,
+.menu-item:focus-visible {
+  background: var(--surface-hover);
+}
+
+.menu-item:not([aria-disabled="true"]):active {
+  scale: 0.985;
+  transition-duration: var(--duration-instant);
+}
+
+.menu-item .check-mark {
+  width: 16px;
+  color: var(--link);
+}
+
+.menu-icon {
+  flex: none;
+  color: var(--text-secondary);
+}
+
+.menu-more {
+  flex: none;
+  margin-left: auto;
+  color: var(--text-secondary);
+}
+
+.menu-item[aria-disabled="true"] {
+  color: var(--text-disabled);
+  cursor: default;
+}
+
+.menu-item[aria-disabled="true"]:hover {
+  background: transparent;
+}
+
+.menu-custom {
+  padding: 0;
+}
+
+/* Shortcut hint on the right of a menu item. */
+.menu-kbd {
+  margin-left: auto;
+  padding-left: var(--space-4);
+  font: inherit;
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.menu-item > .switch {
+  margin-left: auto;
+}
+
+/* On/off switch mark. The control around it has aria-checked. A switch is
+   the one fully round control: the thumb is a circle, so the track is too. */
+.switch {
+  position: relative;
+  flex: none;
+  width: 1.75rem;
+  height: 1rem;
+  border-radius: 999px;
+  background: var(--border-strong);
+  transition: background-color var(--duration-fast) ease-out;
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: var(--switch-thumb);
+  /* Travel settles with a spring; motion.js stretches it on the way. */
+  transition: transform var(--duration-base) var(--ease-spring);
+}
+
+[aria-checked="true"] > .switch {
+  background: var(--accent);
+}
+
+[aria-checked="true"] > .switch .switch-thumb {
+  transform: translateX(0.75rem);
+}
+
+.switch-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+}
+
+.switch-btn:hover > .switch {
+  filter: brightness(0.95);
+}
+
+.switch-btn {
+  transition: scale var(--duration-base) var(--ease-spring);
+}
+
+.switch-btn:active {
+  scale: 0.92;
+  transition-duration: var(--duration-instant);
+  transition-timing-function: var(--ease-out);
+}
+
+/* Key caps (shortcut display). */
+kbd {
+  font: inherit;
+}
+
+.kbd-btn {
+  --pad: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--control-size);
+  padding: var(--pad);
+  border: var(--border-w) solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) ease-out,
+    border-color var(--duration-fast) ease-out;
+}
+
+.kbd-btn:hover {
+  background: var(--surface-hover);
+}
+
+.kbd-btn kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 var(--space-1);
+  border: var(--border-w) solid var(--border-subtle);
+  /* Concentric: button radius - padding - border. */
+  border-radius: calc(var(--radius-sm) - var(--pad) - var(--border-w));
+  background: var(--surface-sunken);
+  color: var(--text-primary);
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.kbd-btn.is-recording {
+  padding-inline: var(--space-2);
+  border-color: var(--focus-ring);
+  background: var(--surface-selected);
+  color: var(--link);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+}
+
+/* Icon picker for a space. */
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(4, var(--button-height));
+  gap: var(--space-1);
+  padding: var(--space-1);
+}
+
+.icon-choice {
+  display: grid;
+  place-items: center;
+  width: var(--button-height);
+  height: var(--button-height);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) ease-out,
+    scale var(--duration-base) var(--ease-spring);
+}
+
+.icon-choice:active {
+  scale: 0.92;
+  transition-duration: var(--duration-instant);
+  transition-timing-function: var(--ease-out);
+}
+
+.icon-choice:hover,
+.icon-choice:focus-visible {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.icon-choice[aria-checked="true"] {
+  background: var(--surface-selected);
+  color: var(--link);
+}
+
+/* Account menu: roomier than other menus, it is a small page of its own. */
+.menu[aria-label="Account"] {
+  display: grid;
+  gap: 2px;
+  min-width: 15rem;
+  max-width: min(17.5rem, calc(100vw - var(--space-4)));
+  padding: var(--space-1h);
+}
+
+.menu[aria-label="Account"] .menu-item {
+  min-height: 2.25rem;
+  padding: 0 0.625rem;
+}
+
+.account-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-3);
+}
+
+.account-meta {
+  gap: 2px;
+}
+
+.account-meta {
+  display: grid;
+  min-width: 0;
+  text-align: left;
+}
+
+.account-meta strong {
+  font-weight: var(--weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-meta small {
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-note,
+.account-demo {
+  padding: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--text-caption-lh);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--control-size);
+  height: var(--control-size);
+  border-radius: var(--radius-pill);
+  background: var(--surface-selected);
+  color: var(--link);
+  transition: scale var(--duration-fast) var(--ease-out);
+}
+
+.avatar-lg {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.avatar-xl {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: var(--radius-lg);
+  font-size: var(--text-heading);
+}
+
+.avatar-xl .icon {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+/* A photo fills the circle; a thin ring keeps light photos from melting
+   into light surfaces. */
+.avatar.has-photo {
+  overflow: hidden;
+  background: var(--surface-sunken);
+  box-shadow: inset 0 0 0 var(--border-w) var(--border-subtle);
+}
+
+.avatar.has-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The glyph fills the tile; the tile's radius clips it. */
+.avatar.has-glyph {
+  overflow: hidden;
+  background: none;
+}
+
+.avatar-glyph {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.avatar.has-initials {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+}
+
+.avatar-lg.has-initials {
+  font-size: var(--text-label);
+}
+
+.avatar-xl.has-initials {
+  font-size: 1.5rem;
+}
+
+/* Colour swatch in a menu item (collection colours). */
+.swatch {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border-radius: 50%;
+}
+
+.swatch-default {
+  border: 1.5px solid var(--border-strong);
+}
+
+.swatch-grey {
+  background: var(--hue-grey);
+}
+.swatch-red {
+  background: var(--hue-red);
+}
+.swatch-orange {
+  background: var(--hue-orange);
+}
+.swatch-yellow {
+  background: var(--hue-yellow);
+}
+.swatch-green {
+  background: var(--hue-green);
+}
+.swatch-teal {
+  background: var(--hue-teal);
+}
+.swatch-blue {
+  background: var(--hue-blue);
+}
+.swatch-purple {
+  background: var(--hue-purple);
+}
+
+.menu-item.is-danger {
+  color: var(--danger);
+}
+
+.menu-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu-heading {
+  padding: var(--space-2) var(--space-2) var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--text-overline);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Section label used in the sidebar, the open-tabs list and menus. */
+.overline {
+  font-size: var(--text-overline);
+  line-height: var(--text-caption-lh);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.menu-sep {
+  height: var(--border-w);
+  margin: var(--space-1h) calc(-1 * var(--space-1));
+  background: var(--border-subtle);
+}
+
+/* ------------------------------------------------------------------ dialog */
+
+dialog {
+  width: min(24rem, calc(100vw - var(--space-6)));
+  padding: var(--space-5);
+  border: var(--border-w) solid var(--border-overlay);
+  border-radius: var(--radius-xl);
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}
+
+dialog::backdrop {
+  background: var(--backdrop);
+  backdrop-filter: blur(var(--backdrop-blur));
+}
+
+/* Dialogs rise into place with a spring while the backdrop fades in, and
+   drop away faster on close. Pure CSS, so closing never waits on it. */
+dialog[open] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--duration-panel) var(--ease-out),
+    transform var(--duration-panel) var(--ease-spring);
+}
+
+@starting-style {
+  dialog[open] {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+dialog[open]::backdrop {
+  opacity: 1;
+  transition: opacity var(--duration-panel) var(--ease-out);
+}
+
+@starting-style {
+  dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* The exit needs the dialog to stay in the top layer while it fades. Where
+   that isn't supported it simply closes at once. */
+@supports (overlay: auto) {
+  dialog {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+    transition:
+      opacity var(--duration-fast) var(--ease-in),
+      transform var(--duration-fast) var(--ease-in),
+      overlay var(--duration-fast) allow-discrete,
+      display var(--duration-fast) allow-discrete;
+  }
+
+  /* A closing dialog never catches clicks meant for the page. */
+  dialog:not([open]),
+  dialog:not([open])::backdrop {
+    pointer-events: none;
+  }
+
+  dialog::backdrop {
+    opacity: 0;
+    transition:
+      opacity var(--duration-fast) var(--ease-in),
+      overlay var(--duration-fast) allow-discrete,
+      display var(--duration-fast) allow-discrete;
+  }
+}
+
+/* Anchored dialog: floats beside the button that opened it (position set in
+   ui.js), with no dimming. It grows from the corner nearest that button. */
+dialog.is-popover {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: min(20rem, calc(100vw - var(--space-4)));
+  padding: var(--space-4);
+  border-radius: var(--radius-xl);
+  transform-origin: top right;
+}
+
+dialog.is-popover::backdrop {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+#dialog-form {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.dialog-title {
+  font-size: var(--text-heading);
+  line-height: var(--text-heading-lh);
+  font-weight: var(--weight-semibold);
+}
+
+.dialog-body {
+  color: var(--text-secondary);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.field label {
+  font-size: var(--text-label);
+  font-weight: var(--weight-medium);
+}
+
+.field input,
+.field textarea {
+  border: var(--border-w) solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  transition:
+    border-color var(--duration-fast) ease-out,
+    background-color var(--duration-fast) ease-out;
+}
+
+.field input:hover,
+.field textarea:hover {
+  border-color: var(--border-strong);
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--border-focus);
+  background: var(--surface-raised);
+}
+
+.field input {
+  height: var(--button-height);
+  padding: 0 var(--space-3);
+}
+
+.field input::placeholder {
+  color: var(--text-secondary);
+}
+
+.field textarea {
+  min-height: 9rem;
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  line-height: var(--text-body-lh);
+  color: inherit;
+  resize: vertical;
+}
+
+/* Settings dialog (lib/settings.js): pages listed on the left, one page on
+   the right. A fixed height, so switching pages never resizes the dialog.
+   `display` only while open, so a closed dialog stays hidden. */
+#settings {
+  width: min(46rem, calc(100vw - var(--space-6)));
+  padding: 0;
+  overflow: hidden;
+}
+
+#settings[open] {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: min(34rem, calc(100dvh - var(--space-6)));
+}
+
+/* Share, invitations and sign-in dialogs reuse the settings header but size
+   to their content. */
+dialog.share {
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+dialog.share[open] {
+  display: grid;
+  gap: var(--space-3);
+  max-height: calc(100dvh - var(--space-6));
+  overflow-y: auto;
+}
+
+dialog.share .settings-head {
+  margin: 0 calc(-1 * var(--space-5));
+}
+
+/* The header already draws the line above a list that follows it. */
+dialog.share .settings-head + .settings-list > .settings-row:first-child {
+  border-top: 0;
+}
+
+.settings-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-4) var(--space-3) var(--space-5);
+  border-bottom: var(--border-w) solid var(--border-subtle);
+}
+
+.settings-layout {
+  display: grid;
+  grid-template-columns: 12rem minmax(0, 1fr);
+  min-height: 0;
+}
+
+.settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0);
+  padding: var(--space-3);
+  border-right: var(--border-w) solid var(--border-subtle);
+  background: var(--surface-sunken);
+}
+
+.settings-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--button-height);
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) ease-out,
+    color var(--duration-fast) ease-out,
+    scale var(--duration-base) var(--ease-spring);
+}
+
+.settings-tab:active {
+  scale: 0.985;
+  transition-duration: var(--duration-instant);
+  transition-timing-function: var(--ease-out);
+}
+
+.settings-tab .icon {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+}
+
+.settings-tab:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+/* Selected: a fill and the accent icon, plus medium weight so it isn't
+   colour alone. */
+.settings-tab[aria-selected="true"] {
+  background: var(--surface-selected);
+  color: var(--text-primary);
+  font-weight: var(--weight-medium);
+}
+
+.settings-tab[aria-selected="true"] .icon {
+  color: var(--link);
+}
+
+.settings-tab:focus-visible {
+  background: var(--surface-hover);
+}
+
+.settings-panels {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.settings-panel {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  padding: var(--space-5);
+}
+
+.settings-panel:focus {
+  outline: none;
+}
+
+.settings-panel[hidden] {
+  display: none;
+}
+
+.settings-page-title {
+  font-size: var(--text-heading);
+  line-height: var(--text-heading-lh);
+  font-weight: var(--weight-semibold);
+}
+
+.settings-intro {
+  margin-top: calc(-1 * var(--space-2));
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: var(--text-caption-lh);
+}
+
+.settings-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 3rem;
+  border-bottom: var(--border-w) solid var(--border-subtle);
+}
+
+.settings-list > .settings-row:first-child,
+.settings-page-title + .settings-row {
+  border-top: var(--border-w) solid var(--border-subtle);
+}
+
+.settings-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding-block: var(--space-2);
+}
+
+.settings-text small,
+.profile-photo small {
+  font-size: var(--text-caption);
+  line-height: var(--text-caption-lh);
+  color: var(--text-secondary);
+}
+
+.settings-value {
+  overflow: hidden;
+  min-width: 0;
+  color: var(--text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-hint {
+  font-size: var(--text-caption);
+  line-height: var(--text-caption-lh);
+  color: var(--text-secondary);
+}
+
+.settings-buttons {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.settings-status {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-1h);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+}
+
+.settings-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--hue-green);
+}
+
+.settings-page-foot {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* The one destructive setting sits apart from the rest. */
+.settings-danger {
+  margin-top: var(--space-5);
+}
+
+.settings-danger .settings-row {
+  border-top: var(--border-w) solid var(--border-subtle);
+}
+
+/* Profile page. */
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding-bottom: var(--space-2);
+}
+
+.profile-photo {
+  display: grid;
+  gap: var(--space-1h);
+  min-width: 0;
+}
+
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.settings-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+.settings-saved .icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--hue-green);
+}
+
+#settings-name {
+  height: var(--button-height);
+  padding: 0 var(--space-3);
+  border: var(--border-w) solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--text-primary);
+  font: inherit;
+  transition:
+    border-color var(--duration-fast) ease-out,
+    background-color var(--duration-fast) ease-out;
+}
+
+#settings-name:hover {
+  border-color: var(--border-strong);
+}
+
+#settings-name:focus {
+  border-color: var(--border-focus);
+  background: var(--surface-raised);
+  outline: none;
+}
+
+#settings-name::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Plan page. */
+.plan-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: var(--border-w) solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.plan-card.is-pro {
+  border-color: var(--focus-ring);
+  background: var(--surface-selected);
+}
+
+.plan-card .settings-text {
+  flex: 1;
+}
+
+.plan-card-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  /* Concentric: card radius - padding. */
+  border-radius: calc(var(--radius-lg) - var(--space-3) + var(--space-1));
+  background: var(--surface-sunken);
+  color: var(--link);
+}
+
+.plan-card.is-pro .plan-card-icon {
+  background: var(--surface-raised);
+}
+
+/* Shortcut buttons: the pencil shows on hover or focus. */
+.kbd-btn .kbd-edit {
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-left: var(--space-0);
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease-out;
+}
+
+.kbd-btn:hover .kbd-edit,
+.kbd-btn:focus-visible .kbd-edit {
+  opacity: 1;
+}
+
+.kbd-listening {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--link);
+  animation: kbd-pulse 1s ease-in-out infinite;
+}
+
+@keyframes kbd-pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kbd-listening {
+    animation: none;
+  }
+}
+
+/* Narrow: the page list becomes a row of tabs along the top. */
+@media (max-width: 40rem) {
+  #settings[open] {
+    height: min(40rem, calc(100dvh - var(--space-4)));
+  }
+
+  .settings-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .settings-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: var(--space-2);
+    border-right: 0;
+    border-bottom: var(--border-w) solid var(--border-subtle);
+    scrollbar-width: none;
+  }
+
+  .settings-tab {
+    flex: none;
+  }
+
+  .settings-panel {
+    padding: var(--space-4);
+  }
+
+  .profile-head {
+    align-items: flex-start;
+  }
+
+  .plan-card {
+    flex-wrap: wrap;
+  }
+
+  .plan-card .settings-text {
+    flex-basis: calc(100% - 3.5rem);
+  }
+
+  .plan-card .btn {
+    margin-left: calc(2.25rem + var(--space-3));
+  }
+}
+
+.btn-sm {
+  flex: none;
+  min-height: 2rem;
+  padding: 0 var(--space-2);
+}
+
+.btn-sm .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+dialog.is-wide {
+  width: min(32rem, calc(100vw - var(--space-6)));
+}
+
+/* Placeholder icons (no site icon, notes) use the secondary text colour. */
+.favicon-fallback,
+.note-icon {
+  color: var(--text-secondary);
+}
+
+.field input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.field-error {
+  font-size: var(--text-caption);
+  line-height: var(--text-caption-lh);
+  color: var(--danger);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.check input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+/* Ticking a box gives it a small springy pop. */
+.check input:checked {
+  animation: check-pop var(--duration-base) var(--ease-spring);
+}
+
+@keyframes check-pop {
+  from {
+    transform: scale(0.8);
+  }
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* Plan badge next to the account name, and the usage line under it. */
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 1.125rem;
+  padding: 0 var(--space-1h);
+  border-radius: var(--radius-pill);
+  background: var(--surface-selected);
+  color: var(--link);
+  font-size: var(--text-overline);
+  font-weight: var(--weight-medium);
+  line-height: 1;
+}
+
+/* A dot on the account button when invitations are waiting. */
+.account-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  flex: none;
+}
+
+/* Upgrade, share and invitation dialogs (share-ui.js). */
+.pro-points {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pro-points li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pro-points .icon {
+  color: var(--link);
+  flex: none;
+}
+
+.member-row {
+  padding: var(--space-1h) 0;
+}
+
+.member-who {
+  display: grid;
+  min-width: 0;
+}
+
+.member-who strong {
+  font-weight: var(--weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-who small {
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+.member-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: none;
+}
+
+.member-role {
+  height: var(--control-size);
+  padding: 0 var(--space-2);
+  border: var(--border-w) solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--text-primary);
+}
+
+.member-role:hover {
+  border-color: var(--border-strong);
+}
+
+.member-role:focus-visible {
+  border-color: var(--border-focus);
+}
+
+.invite-form {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.invite-form input {
+  flex: 1;
+  min-width: 0;
+  height: var(--button-height);
+  padding: 0 var(--space-3);
+  border: var(--border-w) solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+}
+
+.invite-form input:hover {
+  border-color: var(--border-strong);
+}
+
+.invite-form input:focus {
+  border-color: var(--border-focus);
+  background: var(--surface-raised);
+}
+
+.invite-form .member-role {
+  height: var(--button-height);
+}
+
+.btn-quiet-danger {
+  color: var(--danger);
+}
+
+dialog.share .dialog-actions {
+  justify-content: flex-end;
+}
+
+dialog.share .dialog-actions > .btn-quiet-danger {
+  margin-right: auto;
+  margin-left: calc(-1 * var(--space-3));
+}
+
+/* "Shared" / "View only" next to a space's title. */
+.share-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 1.375rem;
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+}
+
+.share-pill .icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .invite-form {
+    flex-wrap: wrap;
+  }
+  .invite-form input {
+    flex-basis: 100%;
+  }
+}
+
+.settings-error.is-info {
+  color: var(--text-secondary);
+}
+
+.win-actions {
+  display: flex;
+  gap: var(--space-1);
+  margin-left: auto;
+}

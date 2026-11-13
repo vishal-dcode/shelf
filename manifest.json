@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "Shelf",
+  "short_name": "Shelf",
+  "version": "1.0.0",
+  "description": "Save open tabs into spaces and shelves and reopen them later. Works offline, needs no account, and tracks nothing.",
+  "minimum_chrome_version": "116",
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "action": {
+    "default_title": "Open Shelf"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "tabs",
+    "contextMenus",
+    "sidePanel",
+    "favicon",
+    "identity",
+    "alarms"
+  ],
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self'; img-src 'self' blob:; connect-src https://clerk.autoshelf.site https://api.autoshelf.site; base-uri 'none'; form-action 'none'"
+  },
+  "host_permissions": [
+    "https://clerk.autoshelf.site/*",
+    "https://api.autoshelf.site/*"
+  ]
+}

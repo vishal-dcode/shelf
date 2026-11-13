@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.zip
+*.pem
+*.crx
+*.key
+.env
+.env.*
+.DS_Store
+# Personal Shelf exports (your saved tabs)
+shelf-backup-*.json

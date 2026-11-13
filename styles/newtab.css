@@ -1,0 +1,1128 @@
+/* New-tab dashboard: sidebar | workspace (shelves + open tabs).
+   Flat by design (v0.11): no shadows. The sidebar sits on the grey canvas,
+   the workspace is one white panel with a hairline edge, shelves are grey
+   lanes inside it and tab cards are white again. Shared components live in
+   base.css; colours only from theme.css. */
+
+.skip-link {
+  position: absolute;
+  left: var(--space-3);
+  top: -3rem;
+  z-index: var(--z-menu);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-weight: var(--weight-medium);
+}
+
+.skip-link:focus {
+  top: var(--space-3);
+}
+
+/* Sidebar and workspace keep their own grid columns, so the sidebar can
+   change width without the board jumping. The workspace has its own grid
+   for board | open tabs, so either can collapse to zero. */
+.app {
+  --left: 15.5rem;
+  --right: 18.5rem;
+  --gap: var(--space-2);
+  display: grid;
+  grid-template-columns: var(--left) minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+.app.sidebar-hidden {
+  --left: 0px;
+}
+
+.app.tabs-hidden {
+  --right: 0px;
+}
+
+.app.sidebar-collapsed {
+  --left: 4rem;
+}
+
+/* Only while the sidebar is being folded or unfolded (lib/motion.js), so
+   the page never animates its columns on load or on resize. */
+.app.is-sliding {
+  transition: grid-template-columns var(--duration-panel) var(--ease-in-out);
+}
+
+/* The same for the Open tabs column (lib/motion.js slideTabsPanel). */
+.app.is-sliding-tabs .workspace {
+  transition: grid-template-columns var(--duration-panel) var(--ease-in-out);
+}
+
+.sidebar {
+  grid-column: 1;
+}
+
+.workspace {
+  grid-column: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--right);
+  align-items: start;
+  min-width: 0;
+  min-height: calc(100dvh - var(--gap) * 2);
+  margin: var(--gap) var(--gap) var(--gap) 0;
+  border: var(--border-w) solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  background: var(--surface-board);
+}
+
+.app.sidebar-hidden .workspace {
+  margin-left: var(--gap);
+}
+
+.board {
+  grid-column: 1;
+}
+
+.tabs-panel {
+  grid-column: 2;
+}
+
+.sidebar[hidden],
+.tabs-panel[hidden] {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- sidebar */
+
+/* Flat on the canvas: no card, no edge. Spacing does the grouping. */
+.sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  height: 100dvh;
+  overflow-y: auto;
+  padding: var(--space-4) var(--space-3) var(--space-3);
+}
+
+.brand {
+  min-height: var(--button-height);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-1) 0 var(--space-2);
+}
+
+.brand-toggle {
+  margin-left: auto;
+}
+
+.brand-name {
+  font-size: var(--text-heading);
+  line-height: var(--text-heading-lh);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+}
+
+.side-search {
+  position: relative;
+}
+
+.side-search-icon {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  display: flex;
+  color: var(--text-secondary);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.side-search input {
+  width: 100%;
+  height: var(--button-height);
+  padding: 0 3.75rem 0 calc(var(--space-3) + 16px + var(--space-2));
+  border: var(--border-w) solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--surface-board);
+  transition: border-color var(--duration-fast) ease-out;
+}
+
+.side-search input:hover {
+  border-color: var(--border-overlay);
+}
+
+.side-search input:focus {
+  border-color: var(--border-focus);
+}
+
+.side-search input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Shortcut hint inside the search field; hidden once it is in use.
+   Concentric: field radius - inset. */
+.side-search-kbd {
+  position: absolute;
+  right: var(--space-1h);
+  top: 50%;
+  padding: 0 var(--space-1h);
+  border: 0;
+  border-radius: calc(var(--radius-pill) - var(--space-1h) + var(--space-0));
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  line-height: 1.25rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.side-search input:focus ~ .side-search-kbd,
+.side-search input:not(:placeholder-shown) ~ .side-search-kbd,
+.side-search-kbd:empty {
+  display: none;
+}
+
+.nav-list {
+  display: grid;
+  gap: var(--space-0);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  transition: translate var(--duration-panel) var(--ease-out);
+}
+
+/* Reordering spaces: drag one up or down. A bar shows where it lands and
+   the row under the pointer eases aside to make room. */
+.nav-row .nav-item[draggable="true"] {
+  cursor: grab;
+}
+
+.nav-row.drop-space-before {
+  translate: 0 3px;
+}
+
+.nav-row.drop-space-after {
+  translate: 0 -3px;
+}
+
+.nav-row.drop-space-before::before,
+.nav-row.drop-space-after::after {
+  content: "";
+  position: absolute;
+  left: var(--space-1);
+  right: var(--space-1);
+  height: 2px;
+  border-radius: 1px;
+  background: var(--link);
+  pointer-events: none;
+  animation: drop-bar-in var(--duration-base) var(--ease-out);
+}
+
+.nav-row.drop-space-before::before {
+  top: -3px;
+}
+
+.nav-row.drop-space-after::after {
+  bottom: -3px;
+}
+
+.nav-item {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--button-height);
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) ease-out,
+    color var(--duration-fast) ease-out,
+    scale var(--duration-base) var(--ease-spring);
+}
+
+.nav-item .icon {
+  color: var(--text-secondary);
+}
+
+.nav-item:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.nav-item:active {
+  background: var(--surface-press);
+  scale: 0.985;
+  transition-duration: var(--duration-instant);
+  transition-timing-function: var(--ease-out);
+}
+
+/* Current page: a white tile with a hairline edge on the grey canvas, plus
+   weight and an accent icon, so it never relies on colour alone. */
+.nav-item[aria-current="page"] {
+  background: var(--surface-board);
+  box-shadow: inset 0 0 0 var(--border-w) var(--border-subtle);
+  color: var(--text-primary);
+  font-weight: var(--weight-medium);
+}
+
+.nav-item[aria-current="page"] .icon {
+  color: var(--link);
+}
+
+/* Switching spaces: the current-page tile slides from the old item to the
+   new one (lib/motion.js). While it travels, the new item's own tile hides. */
+.nav-pill {
+  position: absolute;
+  z-index: -1;
+  border-radius: var(--radius-sm);
+  background: var(--surface-board);
+  box-shadow: inset 0 0 0 var(--border-w) var(--border-subtle);
+  pointer-events: none;
+}
+
+.nav-item[aria-current="page"].is-pill-target {
+  background: transparent;
+  box-shadow: none;
+}
+
+.nav-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-more {
+  position: absolute;
+  right: var(--space-0);
+  opacity: 0;
+  transition: opacity var(--duration-fast) ease-out;
+}
+
+.nav-row:hover .nav-more,
+.nav-row:focus-within .nav-more,
+.nav-more[aria-expanded="true"] {
+  opacity: 1;
+}
+
+.nav-row:hover .nav-count,
+.nav-row:focus-within .nav-count {
+  visibility: hidden;
+}
+
+@media (hover: none) {
+  .nav-more {
+    opacity: 1;
+  }
+
+  .nav-count {
+    visibility: hidden;
+  }
+}
+
+.nav-group {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.nav-group-head {
+  padding: 0 var(--space-2);
+}
+
+.nav-create .icon {
+  color: var(--text-secondary);
+}
+
+.sidebar-foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+
+/* Account: a white tile on the canvas, avatar left, selector mark right.
+   Concentric: avatar radius + padding + border. */
+.account-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-1);
+  border: var(--border-w) solid var(--border-subtle);
+  border-radius: calc(var(--radius-pill) + var(--space-1) + var(--border-w));
+  background: var(--surface-board);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) ease-out,
+    background-color var(--duration-fast) ease-out;
+}
+
+.account-btn:hover,
+.account-btn[aria-expanded="true"] {
+  border-color: var(--border-overlay);
+}
+
+.account-btn:active {
+  background: var(--surface-sunken);
+}
+
+@media (hover: hover) {
+  .account-btn:hover .avatar {
+    scale: 1.06;
+  }
+}
+
+.account-btn .account-meta {
+  flex: 1;
+}
+
+.account-btn .avatar {
+  width: var(--button-height);
+  height: var(--button-height);
+}
+
+.account-chev {
+  color: var(--text-secondary);
+}
+
+/* ------------------------------------------------------------------ board */
+
+.board {
+  min-width: 0;
+  outline: none;
+}
+
+.board-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border-bottom: var(--border-w) solid var(--border-subtle);
+  padding: var(--space-4);
+}
+
+.board-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.sidebar-toggle {
+  align-self: center;
+  margin-left: calc(var(--space-2) * -1);
+}
+
+.board-title {
+  font-size: var(--text-title);
+  line-height: var(--text-title-lh);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.board .banner {
+  margin: var(--space-4) 0 0;
+}
+
+.board-body {
+  padding: var(--space-4);
+}
+
+.board-empty {
+  padding: var(--space-8) 0;
+}
+
+/* Masonry: newtab.js fills each column with whichever is shortest.
+   Column gap must match COLUMN_GAP in newtab.js. */
+.collections {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.masonry-col {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* A shelf is a grey lane on the white panel. Concentric with the cards:
+   lane radius = card radius + lane padding (6 + 6 = 12). */
+.collection {
+  --pad: var(--space-1h);
+  position: relative;
+  min-width: 0;
+  padding: var(--space-1) var(--pad) var(--pad);
+  border-radius: calc(var(--radius-card) + var(--pad));
+  background: var(--surface-column);
+  transition:
+    background-color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out),
+    translate var(--duration-panel) var(--ease-out);
+}
+
+/* While a shelf is dragged over another, that shelf eases a few pixels
+   aside to make room on the side where it will land. */
+.collection.drop-col-before {
+  translate: 0 6px;
+}
+
+.collection.drop-col-after {
+  translate: 0 -6px;
+}
+
+/* Coloured shelves tint the lane instead of the grey. */
+.collection.tint-grey {
+  background: var(--tint-grey);
+}
+.collection.tint-red {
+  background: var(--tint-red);
+}
+.collection.tint-orange {
+  background: var(--tint-orange);
+}
+.collection.tint-yellow {
+  background: var(--tint-yellow);
+}
+.collection.tint-green {
+  background: var(--tint-green);
+}
+.collection.tint-teal {
+  background: var(--tint-teal);
+}
+.collection.tint-blue {
+  background: var(--tint-blue);
+}
+.collection.tint-purple {
+  background: var(--tint-purple);
+}
+
+/* A shelf under a dragged item: the tint and a soft ring ease in. */
+.collection.is-drop-target {
+  background: var(--surface-drop);
+  box-shadow: inset 0 0 0 var(--border-w) var(--drop-ring);
+}
+
+/* Reordering shelves: drag by the header; a bar shows where it lands,
+   centred in the gap between lanes. */
+.col-head[draggable="true"] {
+  cursor: grab;
+}
+
+.col-head[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.collection.drop-col-before::before,
+.collection.drop-col-after::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--link);
+  animation: drop-bar-in var(--duration-base) var(--ease-out);
+}
+
+.collection.drop-col-before::before {
+  top: calc(var(--space-4) / -2 - 1px);
+}
+
+.collection.drop-col-after::after {
+  bottom: calc(var(--space-4) / -2 - 1px);
+}
+
+.nav-item.is-drop-target {
+  background: var(--surface-drop);
+  box-shadow: inset 0 0 0 1px var(--link);
+}
+
+.col-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--button-height);
+}
+
+.col-head .heading-wrap {
+  flex: 0 1 auto;
+}
+
+/* No filled hover box inside the lane (it never lines up with the lane's
+   corner); the chevron darkens instead. */
+.col-head .toggle {
+  margin-left: 0;
+  padding-left: var(--space-1);
+}
+
+.col-head .toggle:hover {
+  background: transparent;
+}
+
+.col-head .toggle:hover .chev {
+  color: var(--text-primary);
+}
+
+.col-name {
+  font-size: var(--text-body);
+  line-height: var(--text-heading-lh);
+  font-weight: var(--weight-semibold);
+}
+
+.col-count {
+  flex: none;
+  color: var(--text-secondary);
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Actions stay focusable but only show on hover or focus, so a page of
+   shelves reads as names and tabs, not rows of icons. A starred shelf keeps
+   its star; touch screens always show everything. */
+.col-actions {
+  display: flex;
+  flex: none;
+  gap: var(--space-0);
+  margin-left: auto;
+}
+
+.col-actions > .icon-btn {
+  opacity: 0;
+  transition:
+    opacity var(--duration-fast) ease-out,
+    background-color var(--duration-fast) ease-out,
+    color var(--duration-fast) ease-out;
+}
+
+.collection:hover .col-actions > .icon-btn,
+.col-head:focus-within .col-actions > .icon-btn,
+.col-actions:has([aria-expanded="true"]) > .icon-btn,
+.col-actions > .col-star[aria-pressed="true"] {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .col-actions > .icon-btn {
+    opacity: 1;
+  }
+}
+
+.col-meta {
+  padding-left: calc(16px + var(--space-1));
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
+  gap: var(--space-1h);
+  margin: var(--space-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Card layouts inside a shelf. "two"/"three" are maximums: below about
+   6rem a card drops to fewer columns. */
+.cards.cards-two {
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(min(100%, 6rem), calc((100% - var(--space-1h)) / 2)), 1fr)
+  );
+}
+
+.cards.cards-three {
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(max(min(100%, 6rem), calc((100% - 2 * var(--space-1h)) / 3)), 1fr)
+  );
+}
+
+.card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  border: var(--border-w) solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-raised);
+  transition:
+    border-color var(--duration-fast) ease-out,
+    background-color var(--duration-fast) ease-out,
+    box-shadow var(--duration-fast) ease-out,
+    translate var(--duration-fast) var(--ease-out),
+    opacity var(--duration-base) var(--ease-out),
+    scale var(--duration-base) var(--ease-spring),
+    rotate var(--duration-base) var(--ease-spring);
+}
+
+.card[draggable="true"] {
+  cursor: grab;
+}
+
+.card:hover {
+  border-color: var(--border-strong);
+}
+
+/* Cards lift a pixel under the pointer (not list rows, which stay flat). */
+@media (hover: hover) {
+  .cards:not(.cards-list) .card:hover {
+    translate: 0 -1px;
+    box-shadow: var(--shadow-hover);
+  }
+}
+
+.card:not(:has(.icon-btn:active)):active {
+  scale: 0.985;
+  transition-duration: var(--duration-instant);
+  transition-timing-function: var(--ease-out);
+}
+
+.card-link {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: calc(var(--card-height) - var(--border-w) * 2);
+  padding: 0 var(--space-3);
+  border-radius: calc(var(--radius-card) - var(--border-w));
+}
+
+/* Site icons sit straight on the card: no tile behind them. */
+.card-link > .favicon {
+  padding: 0;
+  background: transparent;
+}
+
+button.card-link {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.card-link:active {
+  background: var(--surface-press);
+}
+
+.card-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Card actions sit on the card itself, with no box behind them: while they
+   show, the title gives up the room (and truncates) instead of being covered.
+   The buttons change colour on hover rather than painting a filled square
+   that would not match the card's corner. */
+.card {
+  --actions-w: calc(var(--control-size) * 2 + var(--space-0) + var(--space-1));
+}
+
+.card-actions {
+  position: absolute;
+  top: 50%;
+  right: var(--space-1);
+  display: flex;
+  gap: var(--space-0);
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity var(--duration-fast) ease-out;
+}
+
+.card-actions .icon-btn:hover,
+.card-actions .icon-btn[aria-expanded="true"] {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.card-actions .icon-btn:active {
+  background: transparent;
+}
+
+.card:hover .card-actions,
+.card:focus-within .card-actions,
+.card-actions:has([aria-expanded="true"]) {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .card:hover .card-link,
+  .card:focus-within .card-link,
+  .card:has([aria-expanded="true"]) .card-link {
+    padding-right: calc(var(--actions-w) + var(--space-1));
+  }
+}
+
+@media (hover: none) {
+  .card-actions {
+    position: static;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Drop position for the card grid: a vertical bar before the target card. */
+.card.drop-before::before {
+  content: "";
+  position: absolute;
+  top: var(--space-1);
+  bottom: var(--space-1);
+  left: -5px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--link);
+  animation: drop-bar-in-y var(--duration-base) var(--ease-out);
+}
+
+/* List: tabs as compact one-line rows instead of cards. */
+.cards.cards-list {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-0);
+}
+
+.cards-list .card {
+  border-color: transparent;
+  background: transparent;
+}
+
+.cards-list .card:hover {
+  border-color: transparent;
+  background: var(--surface-hover);
+}
+
+.cards-list .card-link {
+  min-height: 2.25rem;
+  padding: 0 var(--space-2);
+}
+
+.cards-list .card-actions {
+  background: transparent;
+}
+
+.cards-list .card.drop-before::before {
+  animation-name: drop-bar-in;
+  top: -2px;
+  bottom: auto;
+  left: 0;
+  right: 0;
+  width: auto;
+  height: 2px;
+}
+
+.cards-empty {
+  margin-top: var(--space-1);
+  padding: var(--space-4);
+  border: var(--border-w) dashed var(--border-strong);
+  border-radius: var(--radius-card);
+  font-size: var(--text-label);
+  line-height: var(--text-label-lh);
+  color: var(--text-secondary);
+}
+
+/* -------------------------------------------------------------- open tabs */
+
+/* Inside the white panel, divided from the board by a hairline. */
+.tabs-panel {
+  position: sticky;
+  top: var(--gap);
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - var(--gap) * 2 - var(--border-w) * 2);
+  overflow-y: auto;
+  padding: var(--space-6) var(--space-3) var(--space-4);
+  border-left: var(--border-w) solid var(--border-subtle);
+}
+
+.tabs-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--button-height);
+  padding: 0 var(--space-1);
+}
+
+.tabs-title {
+  font-size: var(--text-heading);
+  line-height: var(--text-heading-lh);
+  font-weight: var(--weight-semibold);
+}
+
+.tabs-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr); /* lets long titles truncate */
+  gap: var(--space-5);
+  padding-top: var(--space-5);
+}
+
+/* The title and the Save icon share one line. */
+.win-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-left: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.win-title {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.win-save {
+  min-height: var(--control-size);
+  padding: 0 var(--space-2);
+}
+
+.win-actions {
+  flex: none;
+  align-items: center;
+}
+
+.row-title.is-muted {
+  color: var(--text-secondary);
+}
+
+/* Collapsed sidebar: an icon rail. Labels hide; icons keep their tooltips. */
+.sidebar.is-collapsed {
+  overflow-x: hidden;
+  align-items: center;
+  padding-inline: var(--space-2);
+}
+
+/* Collapsed, the logo and the expand button share one spot: the logo shows
+   until the pointer enters the sidebar (or the button has keyboard focus),
+   then the expand button takes its place. On touch, tapping the logo hits
+   the button underneath. */
+.is-collapsed .brand {
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.is-collapsed .brand > * {
+  grid-area: 1 / 1;
+}
+
+/* The swap is a crossfade: the logo shrinks away as the button grows into
+   its place. */
+.is-collapsed .brand img {
+  pointer-events: none;
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-spring);
+}
+
+.is-collapsed .brand-toggle {
+  margin-left: 0;
+  opacity: 0;
+  transform: scale(0.85);
+  transition:
+    opacity var(--duration-base) var(--ease-out),
+    transform var(--duration-base) var(--ease-spring),
+    background-color var(--duration-fast) ease-out,
+    color var(--duration-fast) ease-out,
+    scale var(--duration-base) var(--ease-spring);
+}
+
+.sidebar.is-collapsed:hover .brand img,
+.is-collapsed .brand:has(.brand-toggle:focus-visible) img {
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+.sidebar.is-collapsed:hover .brand-toggle,
+.is-collapsed .brand-toggle:focus-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Folding (lib/motion.js): the column narrows with the full layout still in
+   place, its labels fading out first; the rail layout follows at the end.
+   Unfolding: the labels fade back in once the column has mostly opened. */
+.sidebar.is-folding {
+  overflow-x: hidden;
+}
+
+.sidebar.is-folding
+  :is(
+    .brand-name,
+    .nav-label,
+    .nav-count,
+    .nav-more,
+    .nav-group-head,
+    .account-meta,
+    .account-chev,
+    .side-search-kbd
+  ) {
+  animation: sidebar-label-out var(--duration-fast) var(--ease-in) forwards;
+}
+
+.sidebar.is-unfolding
+  :is(
+    .brand-name,
+    .nav-label,
+    .nav-count,
+    .nav-group-head,
+    .account-meta,
+    .account-chev,
+    .side-search-kbd
+  ) {
+  animation: sidebar-label-in var(--duration-fast) var(--ease-out) var(--duration-fast) backwards;
+}
+
+@keyframes sidebar-label-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sidebar-label-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.is-collapsed
+  :is(
+    .brand-name,
+    .nav-label,
+    .nav-count,
+    .nav-more,
+    .nav-group-head,
+    .account-meta,
+    .account-chev
+  ) {
+  display: none;
+}
+
+.is-collapsed .nav-list,
+.is-collapsed .nav-group {
+  justify-items: center;
+}
+
+.is-collapsed .nav-item {
+  flex: none;
+  justify-content: center;
+  width: 2.25rem;
+  padding: 0;
+}
+
+.is-collapsed .side-search {
+  width: 2.25rem;
+}
+
+.is-collapsed .side-search-kbd {
+  display: none;
+}
+
+.is-collapsed .side-search input {
+  padding: 0;
+  color: transparent;
+  cursor: pointer;
+}
+
+.is-collapsed .side-search input::placeholder {
+  color: transparent;
+}
+
+.is-collapsed .side-search-icon {
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
+.is-collapsed .account-btn {
+  width: auto;
+  padding: var(--space-1);
+  border-color: transparent;
+  background: transparent;
+}
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 1100px) {
+  .app {
+    --left: 13.5rem;
+    --right: 0px;
+  }
+
+  .app.sidebar-hidden {
+    --left: 0px;
+  }
+
+  .app.sidebar-collapsed {
+    --left: 4rem;
+  }
+
+  /* Open tabs becomes a panel over the right edge: a white sheet with a
+     hairline edge, no shadow. */
+  .tabs-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-panel);
+    width: min(20rem, 90vw);
+    height: auto;
+    border-left: var(--border-w) solid var(--border-overlay);
+    background: var(--surface-board);
+  }
+}
+
+@media (max-width: 720px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar,
+  .workspace {
+    grid-column: 1;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+  }
+
+  .sidebar-foot {
+    margin-top: 0;
+  }
+
+  .workspace {
+    margin: 0 var(--gap) var(--gap);
+  }
+
+  .board {
+    padding: var(--space-4);
+  }
+}

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shelf</title>
+    <link rel="icon" type="image/svg+xml" href="icons/logo.svg" />
+    <script src="theme-init.js"></script>
+    <link rel="stylesheet" href="styles/theme.css" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/sidepanel.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-row">
+        <h1 class="wordmark"><img src="icons/logo.svg" alt="" width="20" height="16" />Shelf</h1>
+        <label class="sr-only" for="space-select">Space</label>
+        <select id="space-select" class="space-select"></select>
+        <button type="button" class="icon-btn" id="dashboard-btn" aria-label="Open dashboard" title="Open dashboard" data-key="dashboard"></button>
+        <button type="button" class="icon-btn" id="space-menu-btn" aria-haspopup="menu" aria-expanded="false" aria-label="Space options" data-key="space-menu"></button>
+        <button type="button" class="icon-btn" id="settings-btn" aria-haspopup="menu" aria-expanded="false" aria-label="Settings" data-key="settings"></button>
+      </div>
+      <div class="search">
+        <label class="sr-only" for="search">Search saved tabs</label>
+        <input id="search" type="search" placeholder="Search saved tabs" autocomplete="off" spellcheck="false" />
+      </div>
+    </header>
+
+    <div id="error" class="banner" role="alert" hidden>
+      <p id="error-text"></p>
+      <button type="button" class="btn btn-ghost" id="error-dismiss">Dismiss</button>
+    </div>
+
+    <main id="main" aria-busy="true">
+      <section id="open-tabs" class="block" aria-labelledby="open-tabs-heading"></section>
+      <section id="collections" class="block" aria-labelledby="collections-heading"></section>
+    </main>
+
+    <div id="announce" class="sr-only" role="status" aria-live="polite"></div>
+    <input id="import-file" type="file" accept="application/json,.json" hidden />
+
+    <dialog id="dialog" aria-labelledby="dialog-title">
+      <form id="dialog-form" method="dialog" novalidate>
+        <h2 id="dialog-title" class="dialog-title"></h2>
+        <p id="dialog-body" class="dialog-body" hidden></p>
+        <div id="dialog-field" class="field" hidden>
+          <label for="dialog-input" id="dialog-label"></label>
+          <input id="dialog-input" type="text" maxlength="80" autocomplete="off" aria-describedby="dialog-error" />
+          <p id="dialog-error" class="field-error" hidden></p>
+        </div>
+        <div id="dialog-second-field" class="field" hidden>
+          <label for="dialog-second" id="dialog-second-label"></label>
+          <input id="dialog-second" type="text" maxlength="2048" autocomplete="off" spellcheck="false" aria-describedby="dialog-second-error" />
+          <p id="dialog-second-error" class="field-error" hidden></p>
+        </div>
+        <div id="dialog-area-field" class="field" hidden>
+          <label for="dialog-area" id="dialog-area-label"></label>
+          <textarea id="dialog-area" rows="7" maxlength="10000"></textarea>
+        </div>
+        <label id="dialog-check-wrap" class="check" hidden>
+          <input type="checkbox" id="dialog-check" />
+          <span id="dialog-check-label"></span>
+        </label>
+        <div class="dialog-actions">
+          <button type="button" class="btn btn-secondary" id="dialog-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="dialog-confirm"></button>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="module" src="sidepanel.js"></script>
+  </body>
+</html>
